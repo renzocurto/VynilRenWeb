@@ -42,30 +42,30 @@ export default function RandomDisco({ discos }: RandomDiscoProps) {
           <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
           <div className="min-h-full flex items-center justify-center p-4 py-8">
             <div
-              className={`relative bg-white rounded-3xl shadow-2xl max-w-sm w-full overflow-hidden transition-all duration-200 ${
+              className={`relative bg-white rounded-3xl shadow-2xl max-w-sm w-full max-h-[85vh] flex flex-col overflow-hidden transition-all duration-200 ${
                 isVisible ? "scale-100" : "scale-95"
               }`}
               onClick={(e) => e.stopPropagation()}
             >
               <button
                 onClick={close}
-                className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-white/80 backdrop-blur text-gray-600 hover:bg-white hover:text-gray-900 transition-colors"
+                className="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-white/80 backdrop-blur text-gray-600 hover:bg-white hover:text-gray-900 transition-colors text-lg"
               >
                 &times;
               </button>
 
-              <div className="aspect-square bg-gray-50">
+              <div className="flex-1 min-h-0 bg-gray-50">
                 {selected.imagen ? (
                   <img
                     src={selected.imagen}
                     alt={`${selected.album} - ${selected.artista}`}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-300">
+                  <div className="w-full h-48 flex items-center justify-center text-gray-300">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="w-24 h-24"
+                      className="w-20 h-20"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -78,16 +78,16 @@ export default function RandomDisco({ discos }: RandomDiscoProps) {
                 )}
               </div>
 
-              <div className="p-6 text-center">
-                <h3 className="font-bold text-gray-900 text-xl">
+              <div className="shrink-0 p-5 text-center">
+                <h3 className="font-bold text-gray-900 text-lg leading-tight">
                   {selected.album}
                 </h3>
-                <p className="text-gray-500 mt-1 text-base">
+                <p className="text-gray-500 mt-1 text-sm">
                   {selected.artista}
                 </p>
                 <button
                   onClick={pickRandom}
-                  className="mt-5 px-5 py-2.5 bg-gray-900 text-white rounded-full text-sm font-medium hover:bg-gray-700 transition-colors"
+                  className="mt-4 px-5 py-2.5 bg-gray-900 text-white rounded-full text-sm font-medium hover:bg-gray-700 transition-colors"
                 >
                   Otro disco
                 </button>
