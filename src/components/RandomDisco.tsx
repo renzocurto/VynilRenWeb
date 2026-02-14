@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import type { Disco } from "@/lib/loadDiscos";
 
 interface RandomDiscoProps {
@@ -23,16 +24,18 @@ export default function RandomDisco({ discos }: RandomDiscoProps) {
     setTimeout(() => setSelected(null), 200);
   };
 
-  return (
-    <>
-      <button
-        onClick={pickRandom}
-        className="px-6 py-3 bg-gray-900 text-white rounded-full font-medium hover:bg-gray-700 active:scale-95 transition-all duration-150 shadow-sm"
-      >
-        Disco Aleatorio
-      </button>
+  useEffect(() => {
+    if (selected) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [selected]);
 
-      {selected && (
+  const modal = selected ? (
         <div
           className={`fixed inset-0 z-50 overflow-y-auto transition-opacity duration-200 ${
             isVisible ? "opacity-100" : "opacity-0"
@@ -95,7 +98,17 @@ export default function RandomDisco({ discos }: RandomDiscoProps) {
             </div>
           </div>
         </div>
-      )}
+  ) : null;
+
+  return (
+    <>
+      <button
+        onClick={pickRandom}
+        className="px-6 py-3 bg-gray-900 text-white rounded-full font-medium hover:bg-gray-700 active:scale-95 transition-all duration-150 shadow-sm"
+      >
+        Disco Aleatorio
+      </button>
+      {typeof window !== "undefined" && createPortal(modal, document.body)}
     </>
   );
 }
