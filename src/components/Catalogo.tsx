@@ -5,6 +5,7 @@ import type { Disco } from "@/lib/loadDiscos";
 import SearchBar from "./SearchBar";
 import DiscoCard from "./DiscoCard";
 import RandomDisco from "./RandomDisco";
+import DiscoDetail from "./DiscoDetail";
 
 interface CatalogoProps {
   discos: Disco[];
@@ -12,6 +13,7 @@ interface CatalogoProps {
 
 export default function Catalogo({ discos }: CatalogoProps) {
   const [search, setSearch] = useState("");
+  const [selectedDisco, setSelectedDisco] = useState<Disco | null>(null);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return discos;
@@ -50,11 +52,22 @@ export default function Catalogo({ discos }: CatalogoProps) {
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {filtered.map((disco, i) => (
-              <DiscoCard key={`${disco.album}-${disco.artista}-${i}`} disco={disco} />
+              <DiscoCard
+                key={`${disco.album}-${disco.artista}-${i}`}
+                disco={disco}
+                onClick={() => setSelectedDisco(disco)}
+              />
             ))}
           </div>
         )}
       </main>
+
+      {selectedDisco && (
+        <DiscoDetail
+          disco={selectedDisco}
+          onClose={() => setSelectedDisco(null)}
+        />
+      )}
     </div>
   );
 }

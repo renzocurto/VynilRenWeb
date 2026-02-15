@@ -2,11 +2,15 @@ import type { Disco } from "@/lib/loadDiscos";
 
 interface DiscoCardProps {
   disco: Disco;
+  onClick?: () => void;
 }
 
-export default function DiscoCard({ disco }: DiscoCardProps) {
+export default function DiscoCard({ disco, onClick }: DiscoCardProps) {
   return (
-    <div className="group flex flex-col overflow-hidden rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200">
+    <div
+      className="group flex flex-col overflow-hidden rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer"
+      onClick={onClick}
+    >
       <div className="relative aspect-square bg-gray-50 overflow-hidden">
         {disco.imagen ? (
           <img
