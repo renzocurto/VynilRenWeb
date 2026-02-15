@@ -72,7 +72,7 @@ export default function DiscoDetail({ disco, onClose }: DiscoDetailProps) {
       <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
       <div className="min-h-full flex items-center justify-center p-4 py-8">
         <div
-          className={`relative bg-white rounded-3xl shadow-2xl max-w-md w-full max-h-[90vh] flex flex-col overflow-hidden transition-all duration-200 ${
+          className={`relative bg-white rounded-3xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto transition-all duration-200 ${
             isVisible ? "scale-100" : "scale-95"
           }`}
           onClick={(e) => e.stopPropagation()}
@@ -84,15 +84,15 @@ export default function DiscoDetail({ disco, onClose }: DiscoDetailProps) {
             &times;
           </button>
 
-          <div className="shrink-0 aspect-square bg-gray-50 max-h-[40vh] overflow-hidden">
+          <div className="w-full bg-gray-50 flex items-center justify-center overflow-hidden rounded-t-3xl">
             {coverImage ? (
               <img
                 src={coverImage}
                 alt={`${disco.album} - ${disco.artista}`}
-                className="w-full h-full object-cover"
+                className="w-full h-auto max-h-[35vh] object-contain"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-300">
+              <div className="w-full h-48 flex items-center justify-center text-gray-300">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="w-20 h-20"
@@ -108,7 +108,7 @@ export default function DiscoDetail({ disco, onClose }: DiscoDetailProps) {
             )}
           </div>
 
-          <div className="flex-1 overflow-y-auto p-5">
+          <div className="p-5">
             <div className="text-center mb-4">
               <h3 className="font-bold text-gray-900 text-lg leading-tight">
                 {disco.album}
