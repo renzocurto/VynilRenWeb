@@ -12,8 +12,13 @@ async function getAccessToken(): Promise<string> {
     return cachedToken.access_token;
   }
 
-  const clientId = process.env.SPOTIFY_CLIENT_ID!;
-  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET!;
+  const clientId = process.env.SPOTIFY_CLIENT_ID;
+  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+
+  if (!clientId || !clientSecret) {
+    throw new Error("Missing Spotify credentials");
+  }
+
   const basic = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
 
   const res = await fetch("https://accounts.spotify.com/api/token", {
@@ -26,6 +31,10 @@ async function getAccessToken(): Promise<string> {
   });
 
   const data = await res.json();
+
+  if (!data.access_token) {
+    throw new Error(`Spotify token error: ${JSON.stringify(data)}`);
+  }
 
   cachedToken = {
     access_token: data.access_token,
@@ -47,15 +56,33 @@ export async function GET(request: NextRequest) {
   try {
     const token = await getAccessToken();
 
-    // Buscar album en Spotify
-    const query = encodeURIComponent(`album:${album} artist:${artista}`);
-    const searchRes = await fetch(
-      `https://api.spotify.com/v1/search?q=${query}&type=album&limit=1`,
-      { headers: { Authorization: `Bearer ${token}` } }
+    // Intentar busqueda con prefijos album: artist:
+    let query = encodeURIComponent(`album:${album} artist:${artista}`);
+    let searchRes = await fetch(
+      `https://api.spotify.com/v1/search?q=${query}&type=album&limit=5`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: "no-store",
+      }
     );
-    const searchData = await searchRes.json();
+    let searchData = await searchRes.json();
 
-    const albums = searchData.albums?.items;
+    let albums = searchData.albums?.items;
+
+    // Si no encuentra, intentar busqueda simple sin prefijos
+    if (!albums || albums.length === 0) {
+      query = encodeURIComponent(`${album} ${artista}`);
+      searchRes = await fetch(
+        `https://api.spotify.com/v1/search?q=${query}&type=album&limit=5`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          cache: "no-store",
+        }
+      );
+      searchData = await searchRes.json();
+      albums = searchData.albums?.items;
+    }
+
     if (!albums || albums.length === 0) {
       return NextResponse.json({ found: false });
     }
@@ -65,11 +92,14 @@ export async function GET(request: NextRequest) {
     // Obtener tracks del album
     const tracksRes = await fetch(
       `https://api.spotify.com/v1/albums/${spotifyAlbum.id}/tracks?limit=50`,
-      { headers: { Authorization: `Bearer ${token}` } }
+      {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: "no-store",
+      }
     );
     const tracksData = await tracksRes.json();
 
-    const tracks = tracksData.items.map(
+    const tracks = (tracksData.items || []).map(
       (t: { name: string; duration_ms: number; track_number: number }) => ({
         number: t.track_number,
         name: t.name,
@@ -79,14 +109,15 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       found: true,
-      spotifyUrl: spotifyAlbum.external_urls.spotify,
+      spotifyUrl: spotifyAlbum.external_urls?.spotify || null,
       image: spotifyAlbum.images?.[0]?.url || null,
-      releaseDate: spotifyAlbum.release_date,
+      releaseDate: spotifyAlbum.release_date || null,
       tracks,
     });
-  } catch {
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json(
-      { error: "Error al buscar en Spotify" },
+      { error: "Error al buscar en Spotify", detail: message },
       { status: 500 }
     );
   }
