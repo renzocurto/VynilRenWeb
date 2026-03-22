@@ -32,11 +32,31 @@ export default function AddDisco({ onClose }: AddDiscoProps) {
     setTimeout(onClose, 200);
   };
 
-  const handlePinSubmit = (e: React.FormEvent) => {
+  const handlePinSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!pin.trim()) return;
     setError("");
-    setStep("form");
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/verify-pin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pin }),
+      });
+
+      if (!res.ok) {
+        setError("Código incorrecto");
+        setPin("");
+        return;
+      }
+
+      setStep("form");
+    } catch {
+      setError("Error al verificar código");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -120,9 +140,17 @@ export default function AddDisco({ onClose }: AddDiscoProps) {
 
                   <button
                     type="submit"
-                    className="w-full py-2.5 bg-gray-900 text-white rounded-full text-sm font-medium hover:bg-gray-700 transition-colors"
+                    disabled={loading}
+                    className="w-full py-2.5 bg-gray-900 text-white rounded-full text-sm font-medium hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Continuar
+                    {loading ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Verificando...
+                      </span>
+                    ) : (
+                      "Continuar"
+                    )}
                   </button>
                 </form>
               </>
