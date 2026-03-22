@@ -1,8 +1,10 @@
 import { loadDiscos } from "@/lib/loadDiscos";
 import Catalogo from "@/components/Catalogo";
 
-export default function Home() {
-  const discos = loadDiscos();
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const discos = await loadDiscos();
 
   return <Catalogo discos={discos} />;
 }

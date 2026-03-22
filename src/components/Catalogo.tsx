@@ -6,6 +6,7 @@ import SearchBar from "./SearchBar";
 import DiscoCard from "./DiscoCard";
 import RandomDisco from "./RandomDisco";
 import DiscoDetail from "./DiscoDetail";
+import AddDisco from "./AddDisco";
 
 interface CatalogoProps {
   discos: Disco[];
@@ -14,6 +15,7 @@ interface CatalogoProps {
 export default function Catalogo({ discos }: CatalogoProps) {
   const [search, setSearch] = useState("");
   const [selectedDisco, setSelectedDisco] = useState<Disco | null>(null);
+  const [showAddDisco, setShowAddDisco] = useState(false);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return discos;
@@ -35,7 +37,16 @@ export default function Catalogo({ discos }: CatalogoProps) {
           <div className="flex-1 w-full sm:w-auto">
             <SearchBar value={search} onChange={setSearch} />
           </div>
-          <RandomDisco discos={discos} />
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowAddDisco(true)}
+              className="w-11 h-11 flex items-center justify-center bg-gray-900 text-white rounded-full font-medium hover:bg-gray-700 active:scale-95 transition-all duration-150 shadow-sm text-xl"
+              title="Agregar disco"
+            >
+              +
+            </button>
+            <RandomDisco discos={discos} />
+          </div>
         </div>
       </header>
 
@@ -68,6 +79,8 @@ export default function Catalogo({ discos }: CatalogoProps) {
           onClose={() => setSelectedDisco(null)}
         />
       )}
+
+      {showAddDisco && <AddDisco onClose={() => setShowAddDisco(false)} />}
     </div>
   );
 }
