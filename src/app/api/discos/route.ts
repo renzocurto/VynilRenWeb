@@ -95,6 +95,40 @@ export async function POST(request: NextRequest) {
   }
 }
 
+export async function PATCH(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { id, artista, pin } = body;
+
+    const adminPin = process.env.ADMIN_PIN;
+    if (!adminPin || pin !== adminPin) {
+      return NextResponse.json({ error: "Código incorrecto" }, { status: 401 });
+    }
+
+    if (!id || !artista?.trim()) {
+      return NextResponse.json({ error: "ID y artista son requeridos" }, { status: 400 });
+    }
+
+    const { data, error } = await supabase
+      .from("discos")
+      .update({ artista: artista.trim() })
+      .eq("id", id)
+      .select();
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    if (!data || data.length === 0) {
+      return NextResponse.json({ error: "No se pudo actualizar (RLS)" }, { status: 403 });
+    }
+
+    return NextResponse.json(data[0]);
+  } catch {
+    return NextResponse.json({ error: "Error al actualizar disco" }, { status: 500 });
+  }
+}
+
 export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);

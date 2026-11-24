@@ -15,6 +15,7 @@ export default function AddDisco({ onClose }: AddDiscoProps) {
   const [album, setAlbum] = useState("");
   const [artista, setArtista] = useState("");
   const [imagen, setImagen] = useState("");
+  const [isPerson, setIsPerson] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [isVisible, setIsVisible] = useState(false);
@@ -65,12 +66,19 @@ export default function AddDisco({ onClose }: AddDiscoProps) {
     setLoading(true);
 
     try {
+      const finalArtista = isPerson && artista.trim().includes(" ")
+        ? (() => {
+            const parts = artista.trim().split(/\s+/);
+            const lastName = parts.pop()!;
+            return `${lastName}, ${parts.join(" ")}`;
+          })()
+        : artista;
+
       const res = await fetch("/api/discos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ album, artista, imagen, pin }),
+        body: JSON.stringify({ album, artista: finalArtista, imagen, pin }),
       });
-
       if (!res.ok) {
         const data = await res.json();
         if (res.status === 401) {
@@ -175,6 +183,16 @@ export default function AddDisco({ onClose }: AddDiscoProps) {
                       className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-sm"
                     />
                   </div>
+
+                  <label className="flex items-center gap-2 text-sm text-gray-500 -mt-1 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={isPerson}
+                      onChange={(e) => setIsPerson(e.target.checked)}
+                      className="w-4 h-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+                    />
+                    Es nombre y apellido (ordena por apellido)
+                  </label>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">

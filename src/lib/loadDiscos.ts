@@ -24,6 +24,12 @@ const TRAILING_ARTICLES = [
 
 function displayName(name: string): string {
   const trimmed = name.trim();
+
+  const commaIdx = trimmed.indexOf(", ");
+  if (commaIdx > 0) {
+    return `${trimmed.slice(commaIdx + 2)} ${trimmed.slice(0, commaIdx)}`;
+  }
+
   for (const article of TRAILING_ARTICLES) {
     if (trimmed.endsWith(article)) {
       return `${article.trim()} ${trimmed.slice(0, -article.length)}`;
@@ -34,6 +40,11 @@ function displayName(name: string): string {
 
 function sortName(name: string): string {
   const lower = name.trim().toLowerCase();
+
+  const commaIdx = lower.indexOf(", ");
+  if (commaIdx > 0) {
+    return lower.slice(0, commaIdx).trim();
+  }
 
   for (const article of LEADING_ARTICLES) {
     if (lower.startsWith(article)) {
