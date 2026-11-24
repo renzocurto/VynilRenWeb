@@ -71,16 +71,16 @@ export async function loadDiscos(): Promise<Disco[]> {
     return [];
   }
 
-  const discos = ((data || []) as Disco[]).map((d) => ({
-    ...d,
-    artista: displayName(d.artista),
-  }));
+  const raw = (data || []) as Disco[];
 
-  discos.sort((a, b) => {
+  raw.sort((a, b) => {
     const cmp = sortName(a.artista).localeCompare(sortName(b.artista), "es");
     if (cmp !== 0) return cmp;
     return a.album.toLowerCase().localeCompare(b.album.toLowerCase(), "es");
   });
 
-  return discos;
+  return raw.map((d) => ({
+    ...d,
+    artista: displayName(d.artista),
+  }));
 }
